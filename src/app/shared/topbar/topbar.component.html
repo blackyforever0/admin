@@ -1,0 +1,24 @@
+<div class="a-topbar">
+  @if (retourLien) {
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <a [routerLink]="retourLien" class="a-back">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {{ retourLabel }}
+      </a>
+      <h1>{{ titre }}</h1>
+    </div>
+  } @else {
+    <h1>{{ titre }}</h1>
+  }
+  <div class="right">
+    <ng-content></ng-content>
+    <div class="a-bell">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <div class="dot"></div>
+    </div>
+    <div class="a-who">
+      <div class="a-avatar">A</div>
+      <div><div class="nm">Admin MaliMall</div><div class="rl">Administrateur</div></div>
+    </div>
+  </div>
+</div>

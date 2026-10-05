@@ -1,0 +1,73 @@
+@if (chauffeur) {
+  <app-topbar [titre]="chauffeur.nom" retourLien="/mototaxis" retourLabel="MotoTaxis"></app-topbar>
+
+  <div class="a-content">
+    <div class="list-card" style="margin-bottom:20px;">
+      <div class="fiche-head">
+        <div style="width:64px;height:64px;border-radius:50%;background:rgba(60,111,209,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3C6FD1" stroke-width="1.6" width="28" height="28"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke-linecap="round"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <b style="font-size:15.5px;">{{ chauffeur.nom }}</b>
+            @if (chauffeur.suspendu) {
+              <span class="status-pill cancel">Suspendu</span>
+            } @else if (chauffeur.disponible) {
+              <span class="status-pill ok">Disponible</span>
+            } @else {
+              <span class="status-pill off">Hors ligne</span>
+            }
+            <span class="veh-pill" style="background:rgba(139,120,240,.14);color:#8B78F0;">{{ chauffeur.vehiculeType }} · {{ chauffeur.vehiculeImmatriculation }}</span>
+          </div>
+          <div style="font-size:11px;color:var(--sub);margin-top:4px;">
+            {{ chauffeur.telephone }} ·
+            <span class="a-stars"><svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M12 2l2.6 5.6 6 .9-4.4 4.2 1 6-5.2-2.9-5.2 2.9 1-6L3.4 8.5l6-.9L12 2Z"/></svg></span>
+            {{ chauffeur.noteMoyenne }} · Inscrit depuis {{ chauffeur.inscritDepuis | dateFr }}
+          </div>
+        </div>
+        <div class="a-actions">
+          @if (chauffeur.suspendu) {
+            <button class="a-btn ghost" (click)="reactiver()">Réactiver le chauffeur</button>
+          } @else {
+            <button class="a-btn danger-ghost" (click)="suspendre()">Suspendre le chauffeur</button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="lbl">Courses totales</div><div class="val">{{ chauffeur.nombreCourses }}</div></div>
+      <div class="kpi-card"><div class="lbl">Livraisons Market</div><div class="val">{{ chauffeur.nombreLivraisons }}</div></div>
+      <div class="kpi-card"><div class="lbl">Note moyenne</div><div class="val">{{ chauffeur.noteMoyenne }}</div></div>
+      <div class="kpi-card"><div class="lbl">Revenus générés</div><div class="val">{{ chauffeur.revenusGeneresMmc | mmc }}</div></div>
+    </div>
+
+    <div class="a-sec-title">Courses récentes</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Client</th><th>Trajet</th><th>Prix</th><th>Heure</th></tr></thead>
+        <tbody>
+          @for (c of chauffeur.coursesRecentes; track c.id) {
+            <tr><td>—</td><td>{{ c.trajet }}</td><td>{{ c.prixMmc | mmc }}</td><td>{{ c.date | dateHeureFr }}</td></tr>
+          } @empty {
+            <tr><td colspan="4" style="text-align:center;color:var(--sub);">Aucune course récente</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a-sec-title">Livraisons Market récentes</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Boutique</th><th>Client</th><th>Montant</th><th>Heure</th></tr></thead>
+        <tbody>
+          @for (l of chauffeur.livraisonsRecentes; track l.id) {
+            <tr><td>{{ l.produitOuBoutique }}</td><td>{{ l.clientNom }}</td><td>{{ l.montantMmc | mmc }}</td><td>{{ l.date | dateHeureFr }}</td></tr>
+          } @empty {
+            <tr><td colspan="4" style="text-align:center;color:var(--sub);">Aucune livraison récente</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

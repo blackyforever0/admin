@@ -1,0 +1,94 @@
+<app-topbar titre="Vue d'ensemble">
+  <div class="a-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg><span>Rechercher…</span></div>
+</app-topbar>
+
+<div class="a-content">
+  @if (data) {
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="lbl">Utilisateurs inscrits</div>
+        <div class="val">{{ data.totalUtilisateurs }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="lbl">Commandes Market (mois)</div>
+        <div class="val">{{ data.commandesMoisCourant }}</div>
+        <div class="delta" [class.up]="data.variationCommandesPourcent >= 0" [class.down]="data.variationCommandesPourcent < 0">
+          {{ data.variationCommandesPourcent >= 0 ? '+' : '' }}{{ data.variationCommandesPourcent }}% vs mois dernier
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="lbl">Courses MotoTaxis (mois)</div>
+        <div class="val">{{ data.coursesMoisCourant }}</div>
+        <div class="delta" [class.up]="data.variationCoursesPourcent >= 0" [class.down]="data.variationCoursesPourcent < 0">
+          {{ data.variationCoursesPourcent >= 0 ? '+' : '' }}{{ data.variationCoursesPourcent }}% vs mois dernier
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="lbl">Volume MMC échangé</div>
+        <div class="val">{{ data.volumeMmcMoisCourant | mmc:false }}</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>Commandes Market</h3>
+        <div class="sub">7 derniers jours</div>
+        <div class="bars">
+          @for (pt of data.commandesParJour; track $index) {
+            <div class="bar-col">
+              @if (hauteurPourcent(data.commandesParJour, pt.total) === 100 && pt.total > 0) {
+                <span class="val-pic">{{ pt.total }}</span>
+              }
+              <div class="bar" [style.height.%]="hauteurPourcent(data.commandesParJour, pt.total)" style="background:var(--bleu);"
+                   [title]="pt.total + ' commande' + (pt.total > 1 ? 's' : '') + ' — ' + pt.jour"></div>
+              <span>{{ pt.jour }}</span>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Courses MotoTaxis</h3>
+        <div class="sub">7 derniers jours</div>
+        <div class="bars">
+          @for (pt of data.coursesParJour; track $index) {
+            <div class="bar-col">
+              @if (hauteurPourcent(data.coursesParJour, pt.total) === 100 && pt.total > 0) {
+                <span class="val-pic">{{ pt.total }}</span>
+              }
+              <div class="bar" [style.height.%]="hauteurPourcent(data.coursesParJour, pt.total)" style="background:var(--violet);"
+                   [title]="pt.total + ' course' + (pt.total > 1 ? 's' : '') + ' — ' + pt.jour"></div>
+              <span>{{ pt.jour }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-row">
+      <div class="list-card">
+        <h3>Dernières commandes</h3>
+        @for (c of data.dernieresCommandes; track c.id) {
+          <div class="list-row">
+            <div class="ic" style="background:rgba(60,111,209,.12);"><svg viewBox="0 0 24 24" fill="none" stroke="#3C6FD1" stroke-width="1.6"><path d="M6 7h12l1 13H5L6 7Z"/></svg></div>
+            <div class="mid"><b>{{ c.produitOuBoutique }}</b><span>{{ c.clientNom }}</span></div>
+            <div class="amt">{{ c.montantMmc | mmc }}</div>
+          </div>
+        } @empty {
+          <div class="list-row"><span style="color:var(--sub);font-size:11px;">Aucune commande pour le moment</span></div>
+        }
+      </div>
+      <div class="list-card">
+        <h3>Dernières courses</h3>
+        @for (c of data.dernieresCourses; track c.id) {
+          <div class="list-row">
+            <div class="ic" style="background:rgba(60,111,209,.12);"><svg viewBox="0 0 24 24" fill="none" stroke="#3C6FD1" stroke-width="1.6"><circle cx="6.5" cy="17" r="2.2"/><circle cx="17.5" cy="17" r="2.2"/><path d="M9 17h4.5l2.3-6.4h2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mid"><b>{{ c.chauffeurNom }} — {{ c.trajet }}</b></div>
+            <div class="amt">{{ c.prixMmc | mmc }}</div>
+          </div>
+        } @empty {
+          <div class="list-row"><span style="color:var(--sub);font-size:11px;">Aucune course pour le moment</span></div>
+        }
+      </div>
+    </div>
+  }
+</div>

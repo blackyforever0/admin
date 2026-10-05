@@ -1,0 +1,134 @@
+@if (boutique) {
+  <app-topbar [titre]="boutique.nom" retourLien="/boutiques" retourLabel="Boutiques"></app-topbar>
+
+  <div class="a-content">
+    <div class="list-card" style="margin-bottom:20px;">
+      <div class="fiche-head">
+        <div style="width:64px;height:64px;border-radius:16px;background:rgba(60,111,209,.12);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#3C6FD1;flex-shrink:0;">
+          {{ boutique.nom.charAt(0) }}
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <b style="font-size:15.5px;">{{ boutique.nom }}</b>
+            @if (boutique.suspendue) {
+              <span class="status-pill cancel">Suspendue</span>
+            } @else if (boutique.certifiee) {
+              <span class="status-pill ok">Certifiée</span>
+            } @else {
+              <span class="status-pill pending">Non certifiée</span>
+            }
+          </div>
+          <div style="font-size:11px;color:var(--sub);margin-top:4px;">
+            Propriétaire : {{ boutique.proprietaireNom }} · {{ boutique.proprietaireTelephone }} · Créée le {{ boutique.dateCreation | dateFr }}
+          </div>
+        </div>
+        <div class="a-actions">
+          @if (boutique.suspendue) {
+            <button class="a-btn ghost" (click)="reactiver()">Réactiver la boutique</button>
+          } @else {
+            <button class="a-btn danger-ghost" (click)="suspendre()">Suspendre la boutique</button>
+            @if (boutique.certifiee) {
+              <button class="a-btn ghost" (click)="decertifier()">Retirer la certification</button>
+            } @else {
+              <button class="a-btn ghost" (click)="certifier()">Certifier la boutique</button>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
+      <div class="kpi-card"><div class="lbl">Produits en ligne</div><div class="val">{{ boutique.nombreProduits }}</div></div>
+      <div class="kpi-card"><div class="lbl">Commandes totales</div><div class="val">{{ boutique.nombreCommandes }}</div></div>
+      <div class="kpi-card"><div class="lbl">Ventes cumulées</div><div class="val">{{ boutique.ventesTotalesMmc | mmc }}</div></div>
+    </div>
+
+    <div class="a-sec-title">Produits de la boutique</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Produit</th><th>Prix</th><th>Stock</th><th>Statut</th><th></th></tr></thead>
+        <tbody>
+          @for (p of boutique.produits; track p.id) {
+            <tr>
+              <td><b>{{ p.nom }}</b></td>
+              <td>{{ p.prixMmc | mmc }}</td>
+              <td>{{ p.stock }}</td>
+              <td>
+                @if (p.stock === 0) {
+                  <span class="status-pill pending">Rupture</span>
+                } @else if (p.actif) {
+                  <span class="status-pill ok">En ligne</span>
+                } @else {
+                  <span class="status-pill off">Désactivé</span>
+                }
+              </td>
+              <td>
+                @if (p.actif) {
+                  <button class="a-btn danger-ghost" style="padding:5px 10px;font-size:11px;" (click)="desactiverProduit(p.id)">Désactiver</button>
+                } @else {
+                  <button class="a-btn ghost" style="padding:5px 10px;font-size:11px;" (click)="activerProduit(p.id)">Réactiver</button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" style="text-align:center;color:var(--sub);">Aucun produit</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a-sec-title">Publicités de cette boutique</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Titre</th><th>Durée</th><th>Prix payé</th><th>Statut</th><th>Demandée le</th></tr></thead>
+        <tbody>
+          @for (p of boutique.publicites; track p.id) {
+            <tr>
+              <td><b>{{ p.titre }}</b></td>
+              <td>{{ p.dureeJours }} j</td>
+              <td>{{ p.prixPayeMmc | mmc }}</td>
+              <td>
+                @switch (p.statut) {
+                  @case ('ACTIVE') { <span class="status-pill ok">Active</span> }
+                  @case ('EXPIREE') { <span class="status-pill off">Expirée</span> }
+                  @case ('REFUSEE') { <span class="status-pill cancel">Refusée</span> }
+                  @default { <span class="status-pill pending">En attente</span> }
+                }
+              </td>
+              <td>{{ p.dateCreation | dateFr }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" style="text-align:center;color:var(--sub);">Aucune publicité</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a-sec-title">Commandes récentes de cette boutique</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Commande</th><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>
+          @for (c of boutique.commandesRecentes; track c.id) {
+            <tr>
+              <td><b>#CMD-{{ c.id }}</b></td>
+              <td>{{ c.clientNom }}</td>
+              <td>{{ c.montantMmc | mmc }}</td>
+              <td>
+                @switch (c.statut) {
+                  @case ('LIVREE') { <span class="status-pill ok">Livrée</span> }
+                  @case ('EN_LIVRAISON') { <span class="status-pill transit">En livraison</span> }
+                  @case ('ANNULEE') { <span class="status-pill cancel">Annulée</span> }
+                  @default { <span class="status-pill pending">En attente</span> }
+                }
+              </td>
+              <td>{{ c.date | dateFr }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" style="text-align:center;color:var(--sub);">Aucune commande</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

@@ -1,0 +1,79 @@
+@if (commande) {
+  <app-topbar [titre]="'Commande #CMD-' + commande.id" retourLien="/commandes" retourLabel="Commandes Market"></app-topbar>
+
+  <div class="a-content">
+    @if (commande.signalee && signalementOuvert) {
+      <div class="litige-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/></svg>
+        <div>
+          <b>Litige signalé par {{ signalementOuvert.auteurNom }} — {{ signalementOuvert.motif }}</b>
+          <span>{{ signalementOuvert.description }} Les fonds restent bloqués tant qu'aucune décision n'est prise.</span>
+        </div>
+      </div>
+    }
+
+    <div class="det-grid">
+      <div>
+        <div class="det-card">
+          <h3>Détails de la commande</h3>
+          <table class="a-table" style="box-shadow:none;">
+            <tbody>
+              <tr><td style="color:var(--sub);width:160px;">Produit</td><td><b>{{ commande.produitNom }}</b></td></tr>
+              <tr><td style="color:var(--sub);">Client (acheteur)</td><td>{{ commande.clientNom }}</td></tr>
+              <tr><td style="color:var(--sub);">Boutique (vendeur)</td><td>{{ commande.boutiqueNom }}</td></tr>
+              <tr><td style="color:var(--sub);">Livreur</td><td>{{ commande.livreurNom }}</td></tr>
+              <tr><td style="color:var(--sub);">Montant</td><td><b style="color:var(--bleu);">{{ commande.montantMmc | mmc }}</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="det-card">
+          <h3>Pipeline des deux codes</h3>
+          <div class="pipe">
+            @for (etape of commande.pipeline; track $index) {
+              <div class="step" [class.fail]="etape.echec">
+                <div class="pline"></div>
+                <div class="pdot">
+                  @if (etape.echec) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  }
+                </div>
+                <b>{{ etape.libelle }}</b>
+                <span>{{ etape.date | dateHeureFr }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="det-card">
+          <h3>Fonds</h3>
+          <div class="funds-box">
+            <div class="amt">{{ commande.montantMmc | mmc }}</div>
+            <div class="lbl">
+              {{ commande.statut === 'LIVREE' ? 'RÈGLEMENT EFFECTUÉ' : commande.statut === 'ANNULEE' ? 'REMBOURSÉS À L\'ACHETEUR' : 'TOUJOURS BLOQUÉS · AUCUN DÉBIT NI CRÉDIT EFFECTUÉ' }}
+            </div>
+          </div>
+        </div>
+
+        @if (commande.signalee) {
+          <div class="det-card">
+            <h3>Résoudre le litige</h3>
+            <button class="res-btn primary" [disabled]="enCours" (click)="confirmer()">
+              Confirmer la livraison<span class="sub">Débiter l'acheteur, créditer le vendeur et le livreur</span>
+            </button>
+            <button class="res-btn ghost" [disabled]="enCours" (click)="regenererCode()">
+              Régénérer un code de livraison<span class="sub">Redonner une chance au scan, fonds toujours bloqués</span>
+            </button>
+            <button class="res-btn danger" [disabled]="enCours" (click)="rembourser()">
+              Rembourser l'acheteur<span class="sub">Débloquer les fonds, annuler la commande</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

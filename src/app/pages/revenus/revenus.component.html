@@ -1,0 +1,112 @@
+<app-topbar titre="Revenus MaliMall">
+  <div class="a-chip active" style="cursor:default;">Ce mois-ci</div>
+</app-topbar>
+
+@if (data) {
+  <div class="a-content">
+
+    <div class="rev-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>MaliMall prélève automatiquement 8&nbsp;% de commission sur chaque vente Market (produit + livraison) et chaque course MotoTaxis. La commission est versée au portefeuille de la plateforme dès que les fonds bloqués d'une commande sont débloqués — jamais avant.</span>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="lbl">Revenus totaux (ce mois)</div><div class="val">{{ data.totalMoisMmc | mmc }}</div></div>
+      <div class="kpi-card"><div class="lbl">Commissions Market</div><div class="val">{{ data.commissionsMarketMmc | mmc }}</div></div>
+      <div class="kpi-card"><div class="lbl">Commissions MotoTaxis</div><div class="val">{{ data.commissionsMotoTaxisMmc | mmc }}</div></div>
+      <div class="kpi-card"><div class="lbl">Solde portefeuille plateforme</div><div class="val">{{ data.soldePlateformeMmc | mmc }}</div></div>
+    </div>
+
+    <div class="split-grid" style="margin-bottom:20px;">
+      <div class="list-card">
+        <h3>Revenus des 7 derniers jours</h3>
+        <div style="padding:4px 18px 18px;">
+          <div class="bars">
+            @for (pt of data.revenusParJour; track $index) {
+              <div class="bar-col">
+                @if (hauteurPourcent(data.revenusParJour, pt.total) === 100 && pt.total > 0) {
+                  <span class="val-pic">{{ pt.total | mmc:false }}</span>
+                }
+                <div class="bar" [style.height.%]="hauteurPourcent(data.revenusParJour, pt.total)" style="background:var(--bleu);"
+                     [title]="(pt.total | mmc) + ' — ' + pt.jour"></div>
+                <span>{{ pt.jour }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="list-card">
+        <h3>Répartition par source</h3>
+        <div style="padding:2px 0 10px;">
+          <div class="src-row"><div class="dot" style="background:var(--bleu);"></div><div class="nm">Ventes de produits (Market)</div></div>
+          <div style="padding:0 18px 10px;display:flex;align-items:center;gap:10px;">
+            <div class="src-track"><i [style.width.%]="data.partVentesPourcent" style="background:var(--bleu);"></i></div>
+            <span class="pct">{{ data.partVentesPourcent }}%</span>
+          </div>
+          <div class="src-row" style="margin-top:-8px;"><div class="dot" style="background:#7C97D9;"></div><div class="nm">Livraisons (Market)</div></div>
+          <div style="padding:0 18px 10px;display:flex;align-items:center;gap:10px;">
+            <div class="src-track"><i [style.width.%]="data.partLivraisonsPourcent" style="background:#7C97D9;"></i></div>
+            <span class="pct">{{ data.partLivraisonsPourcent }}%</span>
+          </div>
+          <div class="src-row" style="margin-top:-8px;"><div class="dot" style="background:var(--violet);"></div><div class="nm">Courses (MotoTaxis)</div></div>
+          <div style="padding:0 18px 4px;display:flex;align-items:center;gap:10px;">
+            <div class="src-track"><i [style.width.%]="data.partCoursesPourcent" style="background:var(--violet);"></i></div>
+            <span class="pct">{{ data.partCoursesPourcent }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="split-grid" style="margin-bottom:20px;">
+      <div class="list-card">
+        <h3>Top boutiques — commission générée</h3>
+        <div style="padding:2px 0 10px;">
+          @for (b of data.topBoutiques; track $index) {
+            <div class="contrib-row"><div class="rk">{{ $index + 1 }}</div><div class="nm">{{ b.nom }}<span class="sub2">{{ b.sousTitre }}</span></div><div class="amt">{{ b.montantMmc | mmc }}</div></div>
+          } @empty {
+            <div class="contrib-row"><span style="color:var(--sub);font-size:11px;">Aucune donnée</span></div>
+          }
+        </div>
+      </div>
+
+      <div class="list-card">
+        <h3>Top chauffeurs — commission générée</h3>
+        <div style="padding:2px 0 10px;">
+          @for (c of data.topChauffeurs; track $index) {
+            <div class="contrib-row"><div class="rk">{{ $index + 1 }}</div><div class="nm">{{ c.nom }}<span class="sub2">{{ c.sousTitre }}</span></div><div class="amt">{{ c.montantMmc | mmc }}</div></div>
+          } @empty {
+            <div class="contrib-row"><span style="color:var(--sub);font-size:11px;">Aucune donnée</span></div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="a-sec-title">Transactions de commission récentes</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Type</th><th>Origine</th><th>Montant total</th><th>Commission (8%)</th><th>Date</th></tr></thead>
+        <tbody>
+          @for (t of data.transactionsRecentes; track $index) {
+            <tr [style.background]="t.bloqueeParLitige ? 'rgba(255,82,82,.05)' : null">
+              <td><span class="status-pill" [class.ok]="t.type === 'Market'" [class.transit]="t.type !== 'Market'">{{ t.type === 'Market' ? 'Vente produit' : 'Course MotoTaxi' }}</span></td>
+              <td>{{ t.origine }}</td>
+              <td>{{ t.montantTotalMmc | mmc }}</td>
+              <td>
+                @if (t.bloqueeParLitige) {
+                  <span class="status-pill cancel" style="font-size:9px;">⚠ Bloquée — litige</span>
+                } @else {
+                  <b style="color:var(--bleu);">{{ t.commissionMmc | mmc }}</b>
+                }
+              </td>
+              <td>{{ t.date | dateHeureFr }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" style="text-align:center;color:var(--sub);">Aucune transaction</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+}

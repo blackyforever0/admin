@@ -1,0 +1,92 @@
+<app-topbar titre="MotoTaxis">
+  <div class="a-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg><span>Rechercher…</span></div>
+</app-topbar>
+
+@if (data) {
+  <div class="a-content">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="lbl">Scooter</div><div class="val">{{ data.nbScooter }}</div></div>
+      <div class="kpi-card"><div class="lbl">Telimani</div><div class="val">{{ data.nbTelimani }}</div></div>
+      <div class="kpi-card"><div class="lbl">TriCycle</div><div class="val">{{ data.nbTricycle }}</div></div>
+      <div class="kpi-card"><div class="lbl">Chauffeurs actifs</div><div class="val">{{ data.chauffeursActifs }}</div></div>
+    </div>
+
+    <div class="a-sec-title" style="margin-top:0;">Chauffeurs ({{ data.chauffeurs.length }})</div>
+    <div class="filters-row">
+      <div class="a-chip" [class.active]="filtre === 'TOUS'" (click)="filtre = 'TOUS'">Tous</div>
+      <div class="a-chip" [class.active]="filtre === 'DISPONIBLES'" (click)="filtre = 'DISPONIBLES'">Disponibles</div>
+      <div class="a-chip" [class.active]="filtre === 'HORS_LIGNE'" (click)="filtre = 'HORS_LIGNE'">Hors ligne</div>
+      <div class="a-chip" [class.active]="filtre === 'SUSPENDUS'" (click)="filtre = 'SUSPENDUS'">Suspendus</div>
+    </div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Chauffeur</th><th>Véhicule</th><th>Note</th><th>Courses</th><th>Livraisons</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+          @for (c of chauffeursFiltres; track c.id) {
+            <tr>
+              <td>
+                <div class="a-cell-main">
+                  <div class="th-ic" style="background:rgba(60,111,209,.12);color:#3C6FD1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6.5" cy="17" r="2.2"/><circle cx="17.5" cy="17" r="2.2"/><path d="M9 17h4.5l2.3-6.4h2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <b>{{ c.nom }}</b>
+                </div>
+              </td>
+              <td>{{ c.vehiculeImmatriculation }}<div class="veh-pill" [ngClass]="vehiculeClasse(c.vehiculeType)">{{ c.vehiculeType }}</div></td>
+              <td><span class="a-stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .9-4.4 4.2 1 6-5.2-2.9-5.2 2.9 1-6L3.4 8.5l6-.9L12 2Z"/></svg></span>{{ c.noteMoyenne }}</td>
+              <td>{{ c.nombreCourses }}</td>
+              <td>{{ c.nombreLivraisons }}</td>
+              <td>
+                @if (c.suspendu) {
+                  <span class="status-pill cancel">Suspendu</span>
+                } @else if (c.disponible) {
+                  <span class="status-pill ok">Disponible</span>
+                } @else {
+                  <span class="status-pill off">Hors ligne</span>
+                }
+              </td>
+              <td>
+                <div class="a-actions">
+                  <a class="a-btn ghost" [routerLink]="['/mototaxis', c.id]" style="text-decoration:none;">Voir</a>
+                  @if (c.suspendu) {
+                    <button class="a-btn ghost" (click)="reactiver(c.id)">Réactiver</button>
+                  } @else {
+                    <button class="a-btn danger-ghost" (click)="suspendre(c.id)">Suspendre</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" style="text-align:center;color:var(--sub);">Aucun chauffeur</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a-sec-title">Courses récentes</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Chauffeur</th><th>Trajet</th><th>Prix</th><th>Heure</th></tr></thead>
+        <tbody>
+          @for (c of data.coursesRecentes; track c.id) {
+            <tr><td>{{ c.chauffeurNom }}</td><td>{{ c.trajet }}</td><td>{{ c.prixMmc | mmc }}</td><td>{{ c.date | dateHeureFr }}</td></tr>
+          } @empty {
+            <tr><td colspan="4" style="text-align:center;color:var(--sub);">Aucune course récente</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a-sec-title">Livraisons Market récentes</div>
+    <div class="table-wrap">
+      <table class="a-table">
+        <thead><tr><th>Livreur</th><th>Boutique / Client</th><th>Montant</th><th>Date</th></tr></thead>
+        <tbody>
+          @for (l of data.livraisonsRecentes; track l.id) {
+            <tr><td>{{ l.produitOuBoutique }}</td><td>{{ l.clientNom }}</td><td>{{ l.montantMmc | mmc }}</td><td>{{ l.date | dateHeureFr }}</td></tr>
+          } @empty {
+            <tr><td colspan="4" style="text-align:center;color:var(--sub);">Aucune livraison récente</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

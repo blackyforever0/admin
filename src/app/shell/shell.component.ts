@@ -1,0 +1,18 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from '../core/services/auth.service';
+
+@Component({
+  selector: 'app-shell',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  templateUrl: './shell.component.html',
+})
+export class ShellComponent {
+  constructor(private auth: AuthService) {}
+
+  deconnexion(): void {
+    this.auth.deconnexion();
+  }
+}

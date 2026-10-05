@@ -1,0 +1,51 @@
+<div class="a-login-shell">
+
+  <div class="a-login-left">
+    <div class="c1"></div>
+    <div class="c2"></div>
+    <div class="a-login-brand">
+      <div class="mark"><img src="logo-icon.svg" alt="MaliMall" style="width:100%;height:100%;object-fit:contain;" /></div>
+      <div class="word">MaliMall</div>
+    </div>
+    <div class="a-login-tagline">Console d'administration — pilotez Market, MotoTaxis et le portefeuille MMC depuis un seul endroit.</div>
+    <div class="a-login-features">
+      <div class="a-login-feature"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M6 7h12l1 13H5L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0" stroke-linecap="round"/></svg><span>Boutiques &amp; commandes Market</span></div>
+      <div class="a-login-feature"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="6.5" cy="17" r="2.6"/><circle cx="17.5" cy="17" r="2.6"/><path d="M9 17h4.5l2.3-6.4h2.7M9.3 17l2.9-7.8h3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Chauffeurs &amp; courses MotoTaxis</span></div>
+      <div class="a-login-feature"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18" stroke-linecap="round"/></svg><span>Suivi du portefeuille MMC</span></div>
+    </div>
+  </div>
+
+  <div class="a-login-right">
+    <div class="a-login-card">
+      <div class="eyebrow">Console admin</div>
+      <h2>Connexion</h2>
+      <div class="sub">Accédez à la console d'administration MaliMall avec vos identifiants.</div>
+
+      @if (erreur) {
+        <div class="a-login-error">{{ erreur }}</div>
+      }
+
+      <form (ngSubmit)="seConnecter()">
+        <div class="field">
+          <label>Numéro de téléphone</label>
+          <div class="input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <input type="tel" name="telephone" [(ngModel)]="telephone" placeholder="+223 00 00 00 00" autocomplete="username" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <div class="input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input type="password" name="motDePasse" [(ngModel)]="motDePasse" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+        </div>
+
+        <button class="btn-primary" type="submit" [disabled]="chargement">{{ chargement ? 'Connexion…' : 'Se connecter' }}</button>
+      </form>
+
+      <div class="a-login-foot">Accès réservé au personnel autorisé de MaliMall.<br>Tout accès est journalisé.</div>
+    </div>
+  </div>
+
+</div>

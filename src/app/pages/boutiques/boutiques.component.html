@@ -1,0 +1,55 @@
+<app-topbar titre="Boutiques &amp; produits">
+  <div class="a-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg><span>Rechercher…</span></div>
+</app-topbar>
+
+<div class="a-content">
+  <div class="a-sec-title">Boutiques ({{ boutiques.length }})</div>
+  <div class="filters-row">
+    <div class="a-chip" [class.active]="filtre === 'TOUTES'" (click)="filtre = 'TOUTES'">Toutes</div>
+    <div class="a-chip" [class.active]="filtre === 'CERTIFIEES'" (click)="filtre = 'CERTIFIEES'">Certifiées</div>
+    <div class="a-chip" [class.active]="filtre === 'SUSPENDUES'" (click)="filtre = 'SUSPENDUES'">Suspendues</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="a-table">
+      <thead><tr><th>Boutique</th><th>Propriétaire</th><th>Produits</th><th>Ventes</th><th>Statut</th><th>Créée le</th><th>Actions</th></tr></thead>
+      <tbody>
+        @for (b of filtrees; track b.id) {
+          <tr>
+            <td>
+              <div class="a-cell-main">
+                <div class="th-ic" style="background:rgba(60,111,209,.12);color:#3C6FD1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 7h12l1 13H5L6 7Z"/></svg></div>
+                <div><b>{{ b.nom }}</b></div>
+              </div>
+            </td>
+            <td>{{ b.proprietaireNom }}</td>
+            <td>{{ b.nombreProduits }}</td>
+            <td>{{ b.ventesTotalesMmc | mmc }}</td>
+            <td>
+              @if (b.suspendue) {
+                <span class="status-pill cancel">Suspendue</span>
+              } @else if (b.certifiee) {
+                <span class="status-pill ok">Certifiée</span>
+              } @else {
+                <span class="status-pill pending">Non certifiée</span>
+              }
+            </td>
+            <td>{{ b.dateCreation | dateFr }}</td>
+            <td>
+              <div class="a-actions">
+                <a class="a-btn ghost" [routerLink]="['/boutiques', b.id]" style="text-decoration:none;">Voir</a>
+                @if (b.suspendue) {
+                  <button class="a-btn ghost" (click)="reactiver(b)">Réactiver</button>
+                } @else {
+                  <button class="a-btn danger-ghost" (click)="suspendre(b)">Suspendre</button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" style="text-align:center;color:var(--sub);">Aucune boutique</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

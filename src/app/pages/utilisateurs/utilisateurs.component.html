@@ -1,0 +1,88 @@
+<app-topbar titre="Utilisateurs">
+  <div class="a-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+    <input type="text" [(ngModel)]="recherche" placeholder="Rechercher…" style="background:transparent;border:none;outline:none;font-size:11px;color:var(--text);width:100%;" />
+  </div>
+</app-topbar>
+
+<div class="a-content">
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="lbl">Total utilisateurs</div><div class="val">{{ utilisateurs.length }}</div></div>
+    <div class="kpi-card"><div class="lbl">Clients</div><div class="val">{{ nbClients }}</div></div>
+    <div class="kpi-card"><div class="lbl">Vendeurs</div><div class="val">{{ nbVendeurs }}</div></div>
+    <div class="kpi-card"><div class="lbl">Chauffeurs</div><div class="val">{{ nbChauffeurs }}</div></div>
+  </div>
+
+  <div class="a-sec-title" style="margin-top:0;">Tous les utilisateurs ({{ filtres.length }})</div>
+  <div class="filters-row">
+    <div class="a-chip" [class.active]="filtre === 'TOUS'" (click)="filtre = 'TOUS'">Tous</div>
+    <div class="a-chip" [class.active]="filtre === 'CLIENT'" (click)="filtre = 'CLIENT'">Clients</div>
+    <div class="a-chip" [class.active]="filtre === 'VENDEUR'" (click)="filtre = 'VENDEUR'">Vendeurs</div>
+    <div class="a-chip" [class.active]="filtre === 'CHAUFFEUR'" (click)="filtre = 'CHAUFFEUR'">Chauffeurs</div>
+    <div class="a-chip" [class.active]="filtre === 'ADMIN'" (click)="filtre = 'ADMIN'">Admins</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="a-table">
+      <thead><tr><th>Utilisateur</th><th>Téléphone</th><th>Email</th><th>Rôles</th><th>Statut</th><th>Solde MMC</th><th>Solde gelé</th><th>Inscrit le</th><th></th></tr></thead>
+      <tbody>
+        @for (u of filtres; track u.id) {
+          <tr>
+            <td>
+              <div class="a-cell-main">
+                <div class="th-ic" style="background:rgba(60,111,209,.12);color:#3C6FD1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4" stroke-linecap="round"/></svg></div>
+                <b>{{ u.nomComplet }}</b>
+              </div>
+            </td>
+            <td>{{ u.telephone }}</td>
+            <td>{{ u.email || '—' }}</td>
+            <td>
+              @for (r of u.roles; track r) {
+                <span class="role-pill" [ngClass]="roleClasse(r)">{{ roleLabel(r) }}</span>
+              }
+            </td>
+            <td>
+              @if (u.suspendu) {
+                <span class="status-pill cancel">Suspendu</span>
+              } @else if (u.verifie) {
+                <span class="status-pill ok">Vérifié</span>
+              } @else {
+                <span class="status-pill pending">Non vérifié</span>
+              }
+            </td>
+            <td>{{ u.soldeMmc | mmc }}</td>
+            <td>{{ u.soldeGeleMmc | mmc }}</td>
+            <td>{{ u.dateCreation | dateFr }}</td>
+            <td>
+              <div class="a-actions" style="justify-content:flex-end;">
+                <button class="a-btn ghost" style="padding:5px 10px;font-size:11px;" (click)="ouvrirPanneau(u)">Portefeuille</button>
+                @if (u.suspendu) {
+                  <button class="a-btn ghost" style="padding:5px 10px;font-size:11px;" (click)="reactiver(u)">Réactiver</button>
+                } @else if (!u.roles.includes('ADMIN')) {
+                  <button class="a-btn danger-ghost" style="padding:5px 10px;font-size:11px;" (click)="suspendre(u)">Suspendre</button>
+                }
+              </div>
+            </td>
+          </tr>
+          @if (panneauOuvert === u.id) {
+            <tr>
+              <td colspan="9" style="background:var(--surface-2,#f7f8fa);padding:14px 16px;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <span style="font-size:11.5px;color:var(--sub);">Ajuster le portefeuille de <b>{{ u.nomComplet }}</b> (MMC) :</span>
+                  <input type="number" min="1" [(ngModel)]="montantSaisi" placeholder="Montant en MMC"
+                         style="width:130px;padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:12px;" />
+                  <button class="a-btn ghost" [disabled]="enCours.has(u.id)" (click)="actionPortefeuille(u, 'crediter')">Créditer</button>
+                  <button class="a-btn ghost" [disabled]="enCours.has(u.id)" (click)="actionPortefeuille(u, 'debiter')">Débiter</button>
+                  <button class="a-btn ghost" [disabled]="enCours.has(u.id)" (click)="actionPortefeuille(u, 'geler')">Geler</button>
+                  <button class="a-btn ghost" [disabled]="enCours.has(u.id)" (click)="actionPortefeuille(u, 'debloquer')">Débloquer</button>
+                </div>
+              </td>
+            </tr>
+          }
+        } @empty {
+          <tr><td colspan="9" style="text-align:center;color:var(--sub);">Aucun utilisateur</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
